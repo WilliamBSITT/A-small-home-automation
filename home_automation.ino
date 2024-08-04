@@ -1,4 +1,5 @@
 #include <LiquidCrystal.h>
+#include <DHT.h>
 
 const int lumos = 7;
 const int photoresistor = A0;
@@ -56,11 +57,11 @@ void switch_window() {
     windows++;
     already_press = 1;
   }
+  delay(500);
 }
 
 void loop() {
   switch_window();
-  delay(500);
   switch(windows % 2) {
     case 0:
       lumos_automata();
