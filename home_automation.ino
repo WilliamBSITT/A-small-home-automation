@@ -2,14 +2,31 @@
 
 const int lumos = 7;
 const int photoresistor = A0;
+int windows = 0;
+const int buttonNext = 9;
 
 LiquidCrystal lcd(12, 11, 5, 4, 3, 2);
+DHT dht(8, DHT11);
 
 void setup() {
   Serial.begin(9600);
   lcd.begin(16,2);
+  dht.begin();
   pinMode(lumos, OUTPUT);
+  pinMode(buttonNext, INPUT);
   digitalWrite(lumos, LOW);
+}
+
+void get_meteo() {
+  int humidity = dht.readHumidity();
+  int temp = dht.readTemperature();
+
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(String(temp));
+  lcd.print(" degres | ");
+  lcd.print(String(humidity));
+  lcd.print(" %");
 }
 
 void lumos_automata() {
@@ -31,7 +48,28 @@ void lumos_automata() {
   }
 }
 
+void switch_window() {
+  int buttonState = digitalRead(buttonNext);
+  int already_press = 0;
+  
+  if (buttonState == HIGH && already_press == 0) {
+    windows++;
+    already_press = 1;
+  }
+}
+
 void loop() {
-  lumos_automata()
+  switch_window();
+  delay(500);
+  switch(windows % 2) {
+    case 0:
+      lumos_automata();
+      break;
+    case 1:
+      get_meteo();
+      break;
+    default:
+      Serial.println("ERROR OCCURED");
+  }
   delay(1000);
 }
